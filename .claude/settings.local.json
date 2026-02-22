@@ -4,7 +4,9 @@
       "WebFetch(domain:pia.jp)",
       "WebSearch",
       "WebFetch(domain:t.pia.jp)",
-      "Bash(git branch -m main)"
+      "Bash(git branch -m main)",
+      "Bash(git add .gitignore .github/ && git status)",
+      "Bash(git commit -m \"add workflow and gitignore\" && git push)"
     ]
   }
 }
