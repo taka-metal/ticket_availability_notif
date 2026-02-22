@@ -1,0 +1,16 @@
+# ローカル環境変数（実際の認証情報を含む）
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# Playwright
+/playwright-report/
+/test-results/
+
+# Claude Code
+.claude/

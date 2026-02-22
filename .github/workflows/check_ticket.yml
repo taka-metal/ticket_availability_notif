@@ -1,0 +1,65 @@
+name: チケット空き確認
+
+on:
+  schedule:
+    # 30分ごとに実行（日本時間 9:00〜23:00 = UTC 0:00〜14:00）
+    # 深夜帯はスキップしてActions無料枠を節約
+    - cron: "*/30 0-14 * * *"
+  workflow_dispatch:
+    inputs:
+      force_notify:
+        description: "強制通知テスト（--force-notify フラグを付けて実行）"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: write
+
+jobs:
+  check-ticket:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Python をセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: 依存パッケージをインストール
+        run: pip install -r requirements.txt
+
+      - name: Playwright Chromium をインストール
+        run: playwright install chromium --with-deps
+
+      - name: チケット空き確認スクリプトを実行
+        env:
+          TICKET_URL: ${{ secrets.TICKET_URL }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          NOTIFY_TO: ${{ secrets.NOTIFY_TO }}
+        run: |
+          if [ "${{ github.event.inputs.force_notify }}" = "true" ]; then
+            python checker.py --force-notify
+          else
+            python checker.py
+          fi
+
+      - name: state.json に変更があればコミット＆プッシュ
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet state.json; then
+            echo "state.json に変更なし、スキップします"
+          else
+            git add state.json
+            git commit -m "chore: update state.json [skip ci]"
+            git push
+          fi
