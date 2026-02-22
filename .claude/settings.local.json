@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:pia.jp)",
+      "WebSearch",
+      "WebFetch(domain:t.pia.jp)",
+      "Bash(git branch -m main)"
+    ]
+  }
+}
